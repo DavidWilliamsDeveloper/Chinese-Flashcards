@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chinese Phrase Flashcards</title>
+    <style>
+        :root {
+            /* Sunburst Orange Gradient */
+            --bg-gradient: linear-gradient(135deg, #FF9D00, #FF4E00);
+            --card-bg: #ffffff;
+            --accent-color: #d32f2f;
+            --text-main: #333;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            padding: 40px 0;
+            box-sizing: border-box;
+        }
+
+        .main-title {
+            color: white;
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin: 0;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            height: 52vh;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        /* Essential: Ensures new cards start on the English side */
+        .card.is-flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 40px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            background: var(--card-bg);
+            padding: 35px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .card-face.back {
+            transform: rotateY(180deg);
+            border: 4px solid var(--accent-color);
+        }
+
+        /* Labels: English / Chinese */
+        h2 { 
+            font-size: 1.3rem; 
+            text-transform: uppercase; 
+            color: #bbb; 
+            margin-bottom: 25px; 
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+
+        /* Main English Text (Now on Front) */
+        .eng-text { 
+            font-size: 3.0rem; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            line-height: 1.1;
+        }
+
+        /* Chinese Elements (Now on Back) */
+        .char-text { font-size: 2.2rem; font-weight: 600; color: var(--accent-color); margin: 0; }
+        .pinyin-text { font-size: 2.3rem; font-weight: 600; color: #222; margin: 15px 0 5px 0; }
+        .phone-text { font-size: 2.3rem; color: #888; margin: 0; font-style: italic; }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 10;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 14px 32px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.3s;
+            font-size: 1rem;
+        }
+
+        button:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.45); }
+
+        .counter { font-weight: 800; color: white; min-width: 90px; text-align: center; font-size: 1.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .how-to-use {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            pointer-events: none;
+        }
+
+        .how-to-use span { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<h1 class="main-title">Learn Chinese</h1>
+
+<div class="container">
+    <div class="card" id="card">
+        <!-- Front: English Phrase -->
+        <div class="card-face front">
+            <p class="eng-text" id="eng-display">Loading...</p>
+        </div>
+        <!-- Back: Chinese Answer -->
+        <div class="card-face back">
+            <p class="char-text" id="char-display"></p>
+            <p class="pinyin-text" id="pinyin-display"></p>
+            <p class="phone-text" id="phone-display"></p>
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="prevCard()">Prev</button>
+    <span class="counter" id="counter">1 / 60</span>
+    <button onclick="nextCard()">Next</button>
+</div>
+
+<div class="how-to-use">
+    <span>👆 Tap to flip</span>
+    <span>↔️ Swipe to move</span>
+</div>
+
+<script>
+const data = [
+    ["Hello", "你好", "nǐ hǎo", "nee how"], ["Thank you", "谢谢", "xièxie", "shieh shieh"],
+    ["You're welcome", "不客气", "bú kèqi", "boo kuh chee"], ["Sorry", "对不起", "duìbuqǐ", "dway boo chee"],
+    ["It's okay", "没关系", "méi guānxi", "may gwan shee"], ["Please", "请", "qǐng", "ching"],
+    ["Goodbye", "再见", "zàijiàn", "dzye jyen"], ["Good morning", "早上好", "zǎoshang hǎo", "dzow shang how"],
+    ["Good evening", "晚上好", "wǎnshang hǎo", "wahn shang how"], ["Good night", "晚安", "wǎn'ān", "wahn an"],
+    ["What's your name?", "你叫什么名字？", "nǐ jiào shénme míngzi?", "nee jyaow shen muh ming dzuh"],
+    ["My name is...", "我叫…", "wǒ jiào…", "wuh jyaow..."], ["Nice to meet you", "认识你很高兴", "rènshi nǐ hěn gāoxìng", "run shrr nee hun gow shing"],
+    ["How are you?", "你好吗？", "nǐ hǎo ma?", "nee how mah?"], ["Very good", "很好", "hěn hǎo", "hun how"],
+    ["So-so", "马马虎虎", "mǎmǎ hūhū", "mah mah hoo hoo"], ["Not good", "不好", "bù hǎo", "boo how"],
+    ["May I ask…", "请问…", "qǐng wèn…", "ching wuhn..."], ["How much is it?", "多少钱？", "duōshǎo qián?", "dwaw shaow chyen?"],
+    ["This", "这个", "zhège", "juh guh"], ["That", "那个", "nàge", "nah guh"],
+    ["Where", "哪里", "nǎlǐ", "nah lee"], ["Restroom?", "厕所在哪里？", "cèsuǒ zài nǎlǐ?", "tsuh swaw dzye nah lee?"],
+    ["I don't understand", "我不懂", "wǒ bù dǒng", "wuh boo dong"], ["Can/May", "可以", "kěyǐ", "kuh yee"],
+    ["May I...?", "我可以…吗？", "wǒ kěyǐ... ma?", "wuh kuh yee... mah?"], ["No problem", "没问题", "méi wèntí", "may wen tee"],
+    ["No/Don't have", "没有", "méiyǒu", "may yo"], ["Have", "有", "yǒu", "yo"],
+    ["Like", "喜欢", "xǐhuan", "shee hwahn"], ["Don't like", "不喜欢", "bù xǐhuan", "boo shee hwahn"],
+    ["Help me?", "能帮我吗？", "néng bāng wǒ ma?", "nung bahng wuh mah?"],
+    ["I can speak a little Chinese", "我会说一点中文", "wǒ huì shuō yìdiǎn zhōngwén", "wuh hway shwaw yee dyan jong when"],
+    ["Speak slower", "请慢一点", "qǐng màn yìdiǎn", "ching mahn yee dyan"], ["Again", "再说一遍", "zài shuō yíbiàn", "dzye shwaw yee byan"],
+    ["Yes", "是", "shì", "shrr"], ["No", "不是", "bù shì", "boo shrr"],
+    ["I don't know", "我不知道", "wǒ bù zhīdào", "wuh jr dow"], ["No matter", "没关系", "méi guānxi", "may gwan shee"],
+    ["Take care", "慢走", "màn zǒu", "mahn dzo"], ["Delicious", "好吃", "hǎo chī", "how chir"],
+    ["Hungry", "我饿了", "wǒ è le", "wuh uh luh"], ["Thirsty", "我渴了", "wǒ kě le", "wuh kuh luh"],
+    ["Water", "水", "shuǐ", "shway"], ["Tea", "茶", "chá", "chah"],
+    ["Coffee", "咖啡", "kāfēi", "kah fay"], ["Milk", "牛奶", "niúnǎi", "nyoh nye"],
+    ["Menu", "菜单", "càidān", "tsye dan"], ["Bill, please", "买单", "mǎidān", "my dan"],
+    ["Good luck", "祝你好运", "zhù nǐ hǎo yùn", "joo nee how yoon"], ["One", "一", "yī", "ee"],
+    ["Two", "二", "èr", "ar"], ["Three", "三", "sān", "sahn"],
+    ["Four", "四", "sì", "suh"], ["Five", "五", "wǔ", "woo"],
+    ["Six", "六", "liù", "lyo"], ["Seven", "七", "qī", "chee"],
+    ["Eight", "八", "bā", "bah"], ["Nine", "九", "jiǔ", "jyo"], ["Ten", "十", "shí", "shrr"],
+    ["I love you", "我爱你", "wǒ ài nǐ", "wuh eye nee"],
+    ["You are beautiful", "你很漂亮", "nǐ hěn piàoliang", "nee hun pyaow lyahng"],
+    ["I missed you", "我想你", "wǒ xiǎng nǐ", "wuh shyahng nee"],
+    ["We are friends", "我们是朋友", "wǒmen shì péngyou", "wuh mun shrr pung yo"],
+    ["Let's eat", "吃饭吧", "chīfàn ba", "cher fahn bah"],
+    ["Cheers", "干杯", "gānbēi", "gahn bay"],
+    ["Bless you", "祝福你", "zhùfú nǐ", "joo foo nee"]
+    ["Sleep well", "睡个好觉", "shuì gè hǎo jiào", "shway guh how jyaow"],
+    ["Boyfriend", "男朋友", "nán péngyǒu", "nahn pung yo"],
+    ["Girlfriend", "女朋友", "nǚ péngyǒu", "nyoo pung yo"]
+];
+
+data.sort(() => Math.random() - 0.5);
+let idx = 0;
+const card = document.getElementById('card');
+
+function updateUI() {
+    /* Critical: Resets to English side before showing new content */
+    card.classList.remove('is-flipped');
+    setTimeout(() => {
+        document.getElementById('eng-display').textContent = data[idx][0];
+        document.getElementById('char-display').textContent = data[idx][1];
+        document.getElementById('pinyin-display').textContent = data[idx][2];
+        document.getElementById('phone-display').textContent = data[idx][3];
+        document.getElementById('counter').textContent = `${idx + 1} / ${data.length}`;
+    }, 150);
+}
+
+function nextCard() { idx = (idx + 1) % data.length; updateUI(); }
+function prevCard() { idx = (idx - 1 + data.length) % data.length; updateUI(); }
+
+card.addEventListener('click', () => card.classList.toggle('is-flipped'));
+
+let startX = 0;
+document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+document.addEventListener('touchend', e => {
+    let diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? nextCard() : prevCard();
+});
+
+updateUI();
+</script>
+</body>
+</html>
