@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Learning Hub</title>
+    <style>
+        :root {
+            /* Deep Purple/Indigo Gradient for the Hub */
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.15);
+            --text-main: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .main-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .menu-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 30px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .nav-link:active {
+            transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .link-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .link-icon {
+            font-size: 2rem;
+        }
+
+        /* Specific styles for the "Blue" Capitals app */
+        .capitals-btn {
+            border-left: 8px solid #87CEEB;
+        }
+
+        /* Specific styles for the "Orange" Chinese app */
+        .chinese-btn {
+            border-left: 8px solid #FF9D00;
+        }
+
+        .footer-note {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<h1 class="main-title">Study Hub</h1>
+
+<div class="menu-container">
+    <a href="capitals.html" class="nav-link capitals-btn">
+        <span class="link-text">World Capitals</span>
+        <span class="link-icon">🌍</span>
+    </a>
+
+    <a href="flashcards.html" class="nav-link chinese-btn">
+        <span class="link-text">Learn Chinese</span>
+        <span class="link-icon">🏮</span>
+    </a>
+</div>
+
+<div class="footer-note">SELECT A MODULE TO BEGIN</div>
+
+</body>
+</html>
