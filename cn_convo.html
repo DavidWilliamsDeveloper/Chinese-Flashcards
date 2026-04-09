@@ -119,29 +119,156 @@
 <script>
     // THE DATA: Each main array is ONE "Screen/Conversation"
     // You can add as many {objects} as you want to any conversation.
-    const conversations = [
-        // Conversation 1: 1 Pair
-        [
-            { zh: "你好！", py: "Nǐ hǎo!", ph: "Nee hao!", eng: "Hello!", isQ: true },
-            { zh: "你好吗？", py: "Nǐ hǎo ma?", ph: "Nee hao mah?", eng: "How are you?", isQ: false }
-        ],
-        // Conversation 2: 2 Pairs (4 lines total)
-        [
-            { zh: "这是什么？", py: "Zhè shì shénme?", ph: "Jer shir shun-muh?", eng: "What is this?", isQ: true },
-            { zh: "这是我的猫。", py: "Zhè shì wǒ de māo.", ph: "Jer shir wuo duh mao.", eng: "This is my cat.", isQ: false },
-            { zh: "它叫什么名字？", py: "Tā jiào shénme míngzì?", ph: "Tah jiao shun-muh ming-dze?", eng: "What is its name?", isQ: true },
-            { zh: "它叫大白。", py: "Tā jiào Dàbái.", ph: "Tah jiao Dah-bye.", eng: "Its name is Big White.", isQ: false }
-        ],
-        // Conversation 3: 3 Pairs (6 lines total)
-        [
-            { zh: "你想喝什么？", py: "Nǐ xiǎng hē shénme?", ph: "Nee hsyahng her shun-muh?", eng: "What do you want to drink?", isQ: true },
-            { zh: "我想喝咖啡。", py: "Wǒ xiǎng hē kāfēi.", ph: "Wuo hsyahng her kah-fay.", eng: "I want to drink coffee.", isQ: false },
-            { zh: "你要牛奶吗？", py: "Nǐ yào niúnǎi ma?", ph: "Nee yao nyo-nye mah?", eng: "Do you want milk?", isQ: true },
-            { zh: "不要，谢谢。", py: "Bùyào, xièxiè.", ph: "Boo-yao, hsyè-hsyè.", eng: "No thanks.", isQ: false },
-            { zh: "要糖吗？", py: "Yào táng ma?", ph: "Yao tahng mah?", eng: "Do you want sugar?", isQ: true },
-            { zh: "要一点儿。", py: "Yào yīdiǎnr.", ph: "Yao ee-dyan-er.", eng: "A little bit.", isQ: false }
-        ]
-    ];
+const conversations = [
+    // 1. Introductions (2 Pairs)
+    [
+        { zh: "你叫什么名字？", py: "Nǐ jiào shénme míngzì?", ph: "Nee jyaow shun-muh ming-dze?", eng: "What is your name?", isQ: true },
+        { zh: "我叫李华。", py: "Wǒ jiào Lǐ Huá.", ph: "Wor jyaow Lee Hwah.", eng: "My name is Li Hua.", isQ: false },
+        { zh: "你是哪国人？", py: "Nǐ shì nǎ guó rén?", ph: "Nee shir nah gwor run?", eng: "Which country are you from?", isQ: true },
+        { zh: "我是澳大利亚人。", py: "Wǒ shì Àodàlìyà rén.", ph: "Wor shir Ow-dah-lee-yah run.", eng: "I am Australian.", isQ: false }
+    ],
+    // 2. Ordering Coffee (2 Pairs)
+    [
+        { zh: "我要一杯咖啡。", py: "Wǒ yào yī bēi kāfēi.", ph: "Wor yaow ee bay kah-fay.", eng: "I want a cup of coffee.", isQ: false },
+        { zh: "热的还是冰的？", py: "Rè de háishì bīng de?", ph: "Ruh duh hi-shir bing duh?", eng: "Hot or cold?", isQ: true },
+        { zh: "热的，谢谢。", py: "Rè de, xièxiè.", ph: "Ruh duh, hsyieh-hsyieh.", eng: "Hot, please.", isQ: false },
+        { zh: "还要别的吗？", py: "Hái yào bié de ma?", ph: "Hi yaow byeh duh mah?", eng: "Anything else?", isQ: true }
+    ],
+    // 3. Shopping for Clothes (3 Pairs)
+    [
+        { zh: "这个多少钱？", py: "Zhège duōshǎo qián?", ph: "Juh-guh dwor-shao chyen?", eng: "How much is this?", isQ: true },
+        { zh: "二十块。", py: "Èrshí kuài.", ph: "Arr-shir kwhy.", eng: "Twenty yuan.", isQ: false },
+        { zh: "太贵了！可以便宜点吗？", py: "Tài guì le! Kěyǐ piányí diǎn ma?", ph: "Tie gway luh! Kuh-yee pyen-yee dyen mah?", eng: "Too expensive! Can it be cheaper?", isQ: true },
+        { zh: "十五块怎么样？", py: "Shíwǔ kuài zěnmeyàng?", ph: "Shir-woo kwhy dzun-muh-yahng?", eng: "How about fifteen yuan?", isQ: false },
+        { zh: "好，我要这个。", py: "Hǎo, wǒ yào zhège.", ph: "How, wor yaow juh-guh.", eng: "Okay, I want this one.", isQ: false },
+        { zh: "给你钱。", py: "Gěi nǐ qián.", ph: "Gay nee chyen.", eng: "Here is the money.", isQ: false }
+    ],
+    // 4. Asking for Directions (2 Pairs)
+    [
+        { zh: "请问，洗手间在哪儿？", py: "Qǐngwèn, xǐshǒujiān zài nǎ'er?", ph: "Ching-wen, hsee-shoh-jyen dzye nar?", eng: "Excuse me, where is the toilet?", isQ: true },
+        { zh: "在那儿，商店旁边。", py: "Zài nà'er, shāngdiàn pángbiān.", ph: "Dzye nar, shahng-dyen pahng-byen.", eng: "It's over there, next to the shop.", isQ: false },
+        { zh: "远不远？", py: "Yuǎn bù yuǎn?", ph: "Ywen boo ywen?", eng: "Is it far?", isQ: true },
+        { zh: "不远，很近。", py: "Bù yuǎn, hěn jìn.", ph: "Boo ywen, hun jeen.", eng: "Not far, very close.", isQ: false }
+    ],
+    // 5. Language Ability (2 Pairs)
+    [
+        { zh: "你会说英语吗？", py: "Nǐ huì shuō Yīngyǔ ma?", ph: "Nee hway shwor Ying-yoo mah?", eng: "Do you speak English?", isQ: true },
+        { zh: "会一点点。", py: "Huì yī diǎndiǎn.", ph: "Hway ee dyen-dyen.", eng: "A little bit.", isQ: false },
+        { zh: "你说得很好！", py: "Nǐ shuō de hěn hǎo!", ph: "Nee shwor duh hun how!", eng: "You speak very well!", isQ: false },
+        { zh: "哪里哪里，谢谢。", py: "Nǎlǐ nǎlǐ, xièxiè.", ph: "Nah-lee nah-lee, hsyieh-hsyieh.", eng: "Not at all, thank you.", isQ: false }
+    ],
+    // 6. Ordering Dinner (3 Pairs)
+    [
+        { zh: "你想吃什么？", py: "Nǐ xiǎng chī shénme?", ph: "Nee hsyahng chir shun-muh?", eng: "What do you want to eat?", isQ: true },
+        { zh: "我想吃饺子。", py: "Wǒ xiǎng chī jiǎozi.", ph: "Wor hsyahng chir jyaow-dzuh.", eng: "I want to eat dumplings.", isQ: false },
+        { zh: "你要喝什么汤？", py: "Nǐ yào hē shénme tāng?", ph: "Nee yaow her shun-muh tahng?", eng: "What soup do you want?", isQ: true },
+        { zh: "鸡蛋汤可以吗？", py: "Jīdàn tāng kěyǐ ma?", ph: "Jee-dahn tahng kuh-yee mah?", eng: "Is egg soup okay?", isQ: true },
+        { zh: "可以，再来一瓶可乐。", py: "Kěyǐ, zàilái yī píng kělè.", ph: "Kuh-yee, dzye-lye ee peeng kuh-luh.", eng: "Yes, and one more bottle of cola.", isQ: false },
+        { zh: "好的，请稍等。", py: "Hǎo de, qǐng shāo děng.", ph: "How duh, ching shao dung.", eng: "Okay, please wait a moment.", isQ: false }
+    ],
+    // 7. Weather & Outing (2 Pairs)
+    [
+        { zh: "今天天气好吗？", py: "Jīntiān tiānqì hǎo ma?", ph: "Jeen-tyen tyen-chee how mah?", eng: "Is the weather good today?", isQ: true },
+        { zh: "很好，是晴天。", py: "Hěn hǎo, shì qíngtiān.", ph: "Hun how, shir ching-tyen.", eng: "Very good, it's sunny.", isQ: false },
+        { zh: "我们要去公园吗？", py: "Wǒmen yào qù gōngyuán ma?", ph: "Wor-mun yaow choo gong-ywen mah?", eng: "Are we going to the park?", isQ: true },
+        { zh: "太好了，走吧！", py: "Tài hǎo le, zǒu ba!", ph: "Tie how luh, dzo ba!", eng: "Great, let's go!", isQ: false }
+    ],
+    // 8. Travel Plans (2 Pairs)
+    [
+        { zh: "你想买去北京的票吗？", py: "Nǐ xiǎng mǎi qù Běijīng de piào ma?", ph: "Nee hsyahng my choo Bay-jing duh pyaow mah?", eng: "Do you want to buy a ticket to Beijing?", isQ: true },
+        { zh: "是的，一张往返票。", py: "Shì de, yī zhāng wǎngfǎn piào.", ph: "Shir duh, ee jahng wahng-fahn pyaow.", eng: "Yes, one round-trip ticket.", isQ: false },
+        { zh: "明天出发吗？", py: "Míngtiān chūfā ma?", ph: "Ming-tyen choo-fah mah?", eng: "Leaving tomorrow?", isQ: true },
+        { zh: "不，下个星期一。", py: "Bù, xià gè xīngqīyī.", ph: "Boo, hsya guh hsing-chee-ee.", eng: "No, next Monday.", isQ: false }
+    ],
+    // 9. Family & Siblings (2 Pairs)
+    [
+        { zh: "你有兄弟姐妹吗？", py: "Nǐ yǒu xiōngdì jiěmèi ma?", ph: "Nee yo hsyong-dee jyeh-may mah?", eng: "Do you have siblings?", isQ: true },
+        { zh: "我有一个哥哥。", py: "Wǒ yǒu yīgè gēgē.", ph: "Wor yo ee-guh guh-guh.", eng: "I have one older brother.", isQ: false },
+        { zh: "他也是老师吗？", py: "Tā yěshì lǎoshī ma?", ph: "Tah yeh-shir lao-shir mah?", eng: "Is he also a teacher?", isQ: true },
+        { zh: "不是，他是医生。", py: "Bùshì, tā shì yīshēng.", ph: "Boo-shir, tah shir ee-shung.", eng: "No, he is a doctor.", isQ: false }
+    ],
+    // 10. Daily Routine (2 Pairs)
+    [
+        { zh: "你明天做什么？", py: "Nǐ míngtiān zuò shénme?", ph: "Nee ming-tyen dzuo shun-muh?", eng: "What are you doing tomorrow?", isQ: true },
+        { zh: "我要去上班。", py: "Wǒ yào qù shàngbān.", ph: "Wor yaow choo shahng-bahn.", eng: "I'm going to work.", isQ: false },
+        { zh: "几点下班？", py: "Jǐ diǎn xiàbān?", ph: "Jee dyen hsya-bahn?", eng: "What time do you finish work?", isQ: true },
+        { zh: "下午五点。", py: "Xiàwǔ wǔ diǎn.", ph: "Hsya-woo woo dyen.", eng: "5 PM.", isQ: false }
+    ],
+    // 11. Hobbies & Sports (2 Pairs)
+    [
+        { zh: "你喜欢运动吗？", py: "Nǐ xǐhuān yùndòng ma?", ph: "Nee hsee-hwan yoon-dong mah?", eng: "Do you like sports?", isQ: true },
+        { zh: "我最喜欢打篮球。", py: "Wǒ zuì xǐhuān dǎ lánqiú.", ph: "Wuo dzway hsee-hwan dah lahn-chyo.", eng: "I like playing basketball the most.", isQ: false },
+        { zh: "你经常打球吗？", py: "Nǐ jīngcháng dǎqiú ma?", ph: "Nee jing-chahng dah-chyo mah?", eng: "Do you play often?", isQ: true },
+        { zh: "每个周末都打。", py: "Měi gè zhōumò dōu dǎ.", ph: "May guh jo-mwo dow dah.", eng: "I play every weekend.", isQ: false }
+    ],
+    // 12. At the Fruit Market (3 Pairs)
+    [
+        { zh: "苹果怎么卖？", py: "Píngguǒ zěnme mài?", ph: "Peeng-gwor dzun-muh mye?", eng: "How much are the apples?", isQ: true },
+        { zh: "五块钱一斤。", py: "Wǔ kuài qián yī jīn.", ph: "Woo kwhy chyen ee jeen.", eng: "Five yuan per half-kilo.", isQ: false },
+        { zh: "新鲜吗？", py: "Xīnxiān ma?", ph: "Sheen-shyen mah?", eng: "Are they fresh?", isQ: true },
+        { zh: "非常新鲜，你尝尝。", py: "Fēicháng xīnxiān, nǐ chángcháng.", ph: "Fay-chahng sheen-shyen, nee chahng-chahng.", eng: "Very fresh, have a taste.", isQ: false },
+        { zh: "好，我买四个。", py: "Hǎo, wǒ mǎi sì gè.", ph: "How, wuo mye sir guh.", eng: "Okay, I'll buy four.", isQ: false },
+        { zh: "一共八块钱。", py: "Yīgòng bā kuài qián.", ph: "Ee-gong bah kwhy chyen.", eng: "That's eight yuan total.", isQ: false }
+    ],
+    // 13. Taking a Taxi (2 Pairs)
+    [
+        { zh: "师傅，去机场多少钱？", py: "Shīfu, qù jīchǎng duōshǎo qián?", ph: "Shir-foo, choo jee-chahng dwor-shao chyen?", eng: "Driver, how much to the airport?", isQ: true },
+        { zh: "大概六十块。", py: "Dàgài liùshí kuài.", ph: "Dah-gye lyo-shir kwhy.", eng: "About sixty yuan.", isQ: false },
+        { zh: "要多长时间？", py: "Yào duō cháng shíjiān?", ph: "Yaow dwor chahng shir-jyen?", eng: "How long will it take?", isQ: true },
+        { zh: "半个小时就到。", py: "Bàn gè xiǎoshí jiù dào.", ph: "Bahn guh hsyao-shir jyo dao.", eng: "We'll be there in half an hour.", isQ: false }
+    ],
+    // 14. Making a Phone Call (2 Pairs)
+    [
+        { zh: "喂，请问王先生在吗？", py: "Wéi, qǐngwèn Wáng xiānsheng zài ma?", ph: "Way, ching-wen Wahng hsien-shung dzye mah?", eng: "Hello, is Mr. Wang in?", isQ: true },
+        { zh: "他在开会，您是谁？", py: "Tā zài kāihuì, nín shì shéi?", ph: "Tah dzye kye-hway, neen shir shay?", eng: "He is in a meeting, who is this?", isQ: true },
+        { zh: "我是他的学生。", py: "Wǒ shì tā de xuésheng.", ph: "Wuo shir tah duh hsyue-shung.", eng: "I am his student.", isQ: false },
+        { zh: "请过一会儿再打。", py: "Qǐng guò yīhuǐ'er zài dǎ.", ph: "Ching gwor ee-hwer dzye dah.", eng: "Please call back in a little while.", isQ: false }
+    ],
+    // 15. Feelings & Health (2 Pairs)
+    [
+        { zh: "你怎么了？身体不舒服吗？", py: "Nǐ zěnme le? Shēntǐ bù shūfu ma?", ph: "Nee dzun-muh luh? Shun-tee boo shoo-foo mah?", eng: "What's wrong? Are you not feeling well?", isQ: true },
+        { zh: "我头疼，有点儿发烧。", py: "Wǒ tóuténg, yǒudiǎnr fāshāo.", ph: "Wuo toe-tung, yo-dyan-er fah-shao.", eng: "I have a headache and a bit of a fever.", isQ: false },
+        { zh: "看医生了吗？", py: "Kàn yīshēng le ma?", ph: "Kahn ee-shung luh mah?", eng: "Have you seen a doctor?", isQ: true },
+        { zh: "还没去，我想睡觉。", py: "Hái méi qù, wǒ xiǎng shuìjiào.", ph: "Hi may choo, wuo hsyahng shway-jyao.", eng: "Not yet, I want to sleep.", isQ: false }
+    ],
+    // 16. Birthday Greetings (2 Pairs)
+    [
+        { zh: "祝你生日快乐！", py: "Zhù nǐ shēngrì kuàilè!", ph: "Joo nee shung-ruhr kwhy-luh!", eng: "Happy Birthday to you!", isQ: false },
+        { zh: "谢谢！这是送给我的礼物吗？", py: "Xièxiè! Zhè shì sòng gěi wǒ de lǐwù ma?", ph: "Hsyieh-hsyieh! Jer shir song gay wuo duh lee-woo mah?", eng: "Thank you! Is this a gift for me?", isQ: true },
+        { zh: "是的，希望你喜欢。", py: "Shì de, xīwàng nǐ xǐhuān.", ph: "Shir duh, hee-wahng nee hsee-hwan.", eng: "Yes, I hope you like it.", isQ: false },
+        { zh: "打开看看吧！", py: "Dǎkāi kànkàn ba!", ph: "Dah-kye kahn-kahn ba!", eng: "Open it and have a look!", isQ: false }
+    ],
+    // 17. Looking for Someone (2 Pairs)
+    [
+        { zh: "你看见我的手机了吗？", py: "Nǐ kànjiàn wǒ de shǒujī le ma?", ph: "Nee kahn-jyen wuo duh sho-jee luh mah?", eng: "Have you seen my phone?", isQ: true },
+        { zh: "在桌子上，电脑旁边。", py: "Zài zhuōzi shàng, diànnǎo pángbiān.", ph: "Dzye jwo-dzuh shahng, dyen-nao pahng-byen.", eng: "On the table, next to the computer.", isQ: false },
+        { zh: "哪里？我没看见。", py: "Nǎlǐ? Wǒ méi kànjiàn.", ph: "Nah-lee? Wuo may kahn-jyen.", eng: "Where? I don't see it.", isQ: true },
+        { zh: "就在书下面。", py: "Jiù zài shū xiàmiàn.", ph: "Jyo dzye shoo hsya-myen.", eng: "Right under the book.", isQ: false }
+    ],
+    // 18. Asking for Age (2 Pairs)
+    [
+        { zh: "你女儿今年几岁了？", py: "Nǐ nǚ'ér jīnnián jǐ suì le?", ph: "Nee nyoo-er jeen-nyen jee sway luh?", eng: "How old is your daughter this year?", isQ: true },
+        { zh: "她六岁了。", py: "Tā liù suì le.", ph: "Tah lyo sway luh.", eng: "She is six years old.", isQ: false },
+        { zh: "她上学了吗？", py: "Tā shàngxué le ma?", ph: "Tah shahng-hsyue luh mah?", eng: "Is she in school?", isQ: true },
+        { zh: "上一年级了。", py: "Shàng yī niánjí le.", ph: "Shahng ee nyen-jee luh.", eng: "She is in the first grade.", isQ: false }
+    ],
+    // 19. Learning Progress (2 Pairs)
+    [
+        { zh: "你学汉语学了多久了？", py: "Nǐ xué Hànyǔ xué le duōjiǔ le?", ph: "Nee hsyue Hahn-yoo hsyue luh dwor-jyo luh?", eng: "How long have you been learning Chinese?", isQ: true },
+        { zh: "三个月了。", py: "Sān gè yuè le.", ph: "Sahn guh yue luh.", eng: "Three months.", isQ: false },
+        { zh: "难不难？", py: "Nán bù nán?", ph: "Nahn boo nahn?", eng: "Is it difficult?", isQ: true },
+        { zh: "汉字很难，听力还可以。", py: "Hànzì hěn nán, tīnglì hái kěyǐ.", ph: "Hahn-dze hun nahn, teeng-lee hi kuh-yee.", eng: "Characters are hard, listening is okay.", isQ: false }
+    ],
+    // 20. Weekend Review (2 Pairs)
+    [
+        { zh: "你上个周末去哪儿了？", py: "Nǐ shàng gè zhōumò qù nǎ'er le?", ph: "Nee shahng guh jo-mwo choo nar luh?", eng: "Where did you go last weekend?", isQ: true },
+        { zh: "我和朋友去爬山了。", py: "Wǒ hé péngyou qù páshān le.", ph: "Wuo huh pung-yo choo pah-shahn luh.", eng: "I went hiking with friends.", isQ: false },
+        { zh: "累不累？", py: "Lèi bù lèi?", ph: "Lay boo lay?", eng: "Are you tired?", isQ: true },
+        { zh: "很累，但是很快乐。", py: "Hěn lèi, dànshì hěn kuàilè.", ph: "Hun lay, dahn-shir hun kwhy-luh.", eng: "Very tired, but very happy.", isQ: false }
+    ]
+];
+
+
 
     let currentIndex = 0;
 
