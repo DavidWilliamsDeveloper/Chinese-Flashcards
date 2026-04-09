@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Pair Conversation Practice</title>
+    <style>
+        :root {
+            --bg-color: #e5ddd5;
+            --left-bubble: #ffffff;
+            --right-bubble: #dcf8c6;
+            --accent: #075e54;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-color);
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--accent);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Bubble Layout */
+        .row { display: flex; width: 100%; margin-bottom: 5px; }
+        .row-left { justify-content: flex-start; }
+        .row-right { justify-content: flex-end; }
+
+        .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .row-left .bubble { background: var(--left-bubble); border-top-left-radius: 2px; }
+        .row-right .bubble { background: var(--right-bubble); border-top-right-radius: 2px; }
+
+        /* Typography */
+        .chinese { font-size: 1.25rem; font-weight: 600; color: #000; display: block; margin-bottom: 2px; }
+        .pinyin { font-size: 0.9rem; color: #444; font-style: italic; }
+        .phonetic { font-size: 0.8rem; color: #777; margin-bottom: 8px; }
+        .divider { border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 8px 0; }
+        .english { font-size: 0.95rem; color: #222; }
+
+        footer {
+            background: #f0f0f0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 25px;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.95); }
+        button:disabled { background: #bbb; cursor: not-allowed; }
+
+        .counter { font-size: 0.85rem; color: #666; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <header id="header-text">Language Practice</header>
+    
+    <div id="chat-window">
+        <!-- Bubbles will be injected here -->
+    </div>
+
+    <footer>
+        <button id="prev-btn">Previous</button>
+        <div class="counter" id="page-counter">1 / 1</div>
+        <button id="next-btn">Next</button>
+    </footer>
+</div>
+
+<script>
+    // THE DATA: Each main array is ONE "Screen/Conversation"
+    // You can add as many {objects} as you want to any conversation.
+    const conversations = [
+        // Conversation 1: 1 Pair
+        [
+            { zh: "你好！", py: "Nǐ hǎo!", ph: "Nee hao!", eng: "Hello!", isQ: true },
+            { zh: "你好吗？", py: "Nǐ hǎo ma?", ph: "Nee hao mah?", eng: "How are you?", isQ: false }
+        ],
+        // Conversation 2: 2 Pairs (4 lines total)
+        [
+            { zh: "这是什么？", py: "Zhè shì shénme?", ph: "Jer shir shun-muh?", eng: "What is this?", isQ: true },
+            { zh: "这是我的猫。", py: "Zhè shì wǒ de māo.", ph: "Jer shir wuo duh mao.", eng: "This is my cat.", isQ: false },
+            { zh: "它叫什么名字？", py: "Tā jiào shénme míngzì?", ph: "Tah jiao shun-muh ming-dze?", eng: "What is its name?", isQ: true },
+            { zh: "它叫大白。", py: "Tā jiào Dàbái.", ph: "Tah jiao Dah-bye.", eng: "Its name is Big White.", isQ: false }
+        ],
+        // Conversation 3: 3 Pairs (6 lines total)
+        [
+            { zh: "你想喝什么？", py: "Nǐ xiǎng hē shénme?", ph: "Nee hsyahng her shun-muh?", eng: "What do you want to drink?", isQ: true },
+            { zh: "我想喝咖啡。", py: "Wǒ xiǎng hē kāfēi.", ph: "Wuo hsyahng her kah-fay.", eng: "I want to drink coffee.", isQ: false },
+            { zh: "你要牛奶吗？", py: "Nǐ yào niúnǎi ma?", ph: "Nee yao nyo-nye mah?", eng: "Do you want milk?", isQ: true },
+            { zh: "不要，谢谢。", py: "Bùyào, xièxiè.", ph: "Boo-yao, hsyè-hsyè.", eng: "No thanks.", isQ: false },
+            { zh: "要糖吗？", py: "Yào táng ma?", ph: "Yao tahng mah?", eng: "Do you want sugar?", isQ: true },
+            { zh: "要一点儿。", py: "Yào yīdiǎnr.", ph: "Yao ee-dyan-er.", eng: "A little bit.", isQ: false }
+        ]
+    ];
+
+    let currentIndex = 0;
+
+    const chatWindow = document.getElementById('chat-window');
+    const pageCounter = document.getElementById('page-counter');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    function render() {
+        // Clear previous bubbles
+        chatWindow.innerHTML = ''; 
+        
+        // Update Counter
+        pageCounter.innerText = `${currentIndex + 1} / ${conversations.length}`;
+        
+        // Loop through all lines in the current conversation set
+        conversations[currentIndex].forEach(line => {
+            const row = document.createElement('div');
+            row.className = `row ${line.isQ ? 'row-left' : 'row-right'}`;
+            
+            row.innerHTML = `
+                <div class="bubble">
+                    <span class="chinese">${line.zh}</span>
+                    <div class="pinyin">${line.py}</div>
+                    <div class="phonetic">[${line.ph}]</div>
+                    <hr class="divider">
+                    <div class="english">${line.eng}</div>
+                </div>
+            `;
+            chatWindow.appendChild(row);
+        });
+
+        // Scroll to the bottom of the chat automatically
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // Manage button states
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === conversations.length - 1;
+    }
+
+    nextBtn.onclick = () => { if (currentIndex < conversations.length - 1) { currentIndex++; render(); } };
+    prevBtn.onclick = () => { if (currentIndex > 0) { currentIndex--; render(); } };
+
+    // Start the app
+    render();
+</script>
+
+</body>
+</html>
