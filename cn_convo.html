@@ -303,7 +303,6 @@ function renderConversation() {
         row.className = `row ${item.isQ ? 'row-left' : 'row-right'}`;
         row.id = `bubble-${index}`;
         
-        // Only the first bubble is visible by default
         if (index === 0) {
             row.classList.add('visible');
             currentStep = 0;
@@ -325,9 +324,13 @@ function renderConversation() {
     prevBtn.disabled = currentConvoIndex === 0;
     nextBtn.disabled = currentConvoIndex === conversations.length - 1;
     
-    // Reset step counter for new conversation
     currentStep = 0;
+
+    // --- ADDED RESET SCROLL ---
+    // This forces the chat window back to the top for the new conversation
+    chatWindow.scrollTop = 0; 
 }
+
 
 function handleTap() {
     const convo = conversations[currentConvoIndex];
