@@ -335,30 +335,34 @@ function handleTap() {
     if (currentStep < convo.length - 1) {
         currentStep++;
         const nextBubble = document.getElementById(`bubble-${currentStep}`);
+        
+        // 1. Show the bubble
         nextBubble.classList.add('visible');
         
-        // --- NEW SCROLL LOGIC ---
-        // Calculate heights
-        const windowHeight = chatWindow.clientHeight;
-        const bubbleHeight = nextBubble.offsetHeight;
-        
-        // If bubble is too tall to fit comfortably or pushes others out
-        // we scroll this specific bubble to the top.
-        if (bubbleHeight > windowHeight * 0.7) {
-            nextBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-            // Otherwise, just ensure the bottom is visible
-            chatWindow.scrollTo({ 
-                top: chatWindow.scrollHeight, 
-                behavior: 'smooth' 
-            });
-        }
-        // -------------------------
+        // 2. Short delay to allow the CSS transition/layout to calculate
+        setTimeout(() => {
+            const windowHeight = chatWindow.clientHeight;
+            const bubbleHeight = nextBubble.offsetHeight;
+
+            // If the bubble is taller than 70% of the screen, or 
+            // if adding it would push it off the bottom:
+            if (bubbleHeight > windowHeight * 0.7) {
+                // Align the TOP of this bubble to the TOP of the window
+                nextBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                // Otherwise, standard scroll to bottom
+                chatWindow.scrollTo({ 
+                    top: chatWindow.scrollHeight, 
+                    behavior: 'smooth' 
+                });
+            }
+        }, 50); // 50ms delay ensures the 'visible' class is fully applied
         
     } else {
         triggerRedFlash();
     }
 }
+
 
 
 function triggerRedFlash() {
