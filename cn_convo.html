@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Pair Conversation Practice</title>
+    <title>Conversation Practice</title>
     <style>
         :root {
             --bg-color: #e5ddd5;
             --left-bubble: #ffffff;
             --right-bubble: #dcf8c6;
             --accent: #075e54;
+            --error-red: rgba(255, 255, 255, 0.4);
         }
 
         body {
@@ -19,6 +20,8 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            /* Prevent text selection while tapping rapidly */
+            user-select: none; 
         }
 
         #app-container {
@@ -31,6 +34,12 @@
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        /* The Red Flash Animation */
+        #app-container.flash-red {
+            background-color: var(--error-red) !important;
         }
 
         header {
@@ -49,10 +58,11 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            cursor: pointer; /* Suggests the area is clickable */
         }
 
-        /* Bubble Layout */
-        .row { display: flex; width: 100%; margin-bottom: 5px; }
+        .row { display: flex; width: 100%; margin-bottom: 5px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .row.visible { opacity: 1; transform: translateY(0); }
         .row-left { justify-content: flex-start; }
         .row-right { justify-content: flex-end; }
 
@@ -67,12 +77,11 @@
         .row-left .bubble { background: var(--left-bubble); border-top-left-radius: 2px; }
         .row-right .bubble { background: var(--right-bubble); border-top-right-radius: 2px; }
 
-        /* Typography */
-        .chinese { font-size: 1.25rem; font-weight: 600; color: #000; display: block; margin-bottom: 2px; }
-        .pinyin { font-size: 0.9rem; color: #444; font-style: italic; }
-        .phonetic { font-size: 0.8rem; color: #777; margin-bottom: 8px; }
+        .chinese { font-size: 1.45rem; font-weight: 600; color: #000; display: block; margin-bottom: 2px; }
+        .pinyin { font-size: 1.45rem; color: #444; font-style: italic; }
+        .phonetic { font-size: 1.45rem; color: #777; margin-bottom: 8px; }
         .divider { border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 8px 0; }
-        .english { font-size: 0.95rem; color: #222; }
+        .english { font-size: 1.45rem; color: #222; }
 
         footer {
             background: #f0f0f0;
@@ -91,13 +100,21 @@
             color: white;
             cursor: pointer;
             font-weight: 600;
-            transition: transform 0.1s, opacity 0.2s;
+            z-index: 10;
         }
 
         button:active { transform: scale(0.95); }
         button:disabled { background: #bbb; cursor: not-allowed; }
 
         .counter { font-size: 0.85rem; color: #666; font-weight: bold; }
+        
+        .tap-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 10px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +126,8 @@
         <!-- Bubbles will be injected here -->
     </div>
 
+    <div class="tap-hint">Tap screen to reveal next bubble</div>
+
     <footer>
         <button id="prev-btn">Previous</button>
         <div class="counter" id="page-counter">1 / 1</div>
@@ -117,15 +136,13 @@
 </div>
 
 <script>
-    // THE DATA: Each main array is ONE "Screen/Conversation"
-    // You can add as many {objects} as you want to any conversation.
 const conversations = [
     // 1. Introductions (2 Pairs)
     [
         { zh: "你叫什么名字？", py: "Nǐ jiào shénme míngzì?", ph: "Nee jyaow shun-muh ming-dze?", eng: "What is your name?", isQ: true },
         { zh: "我叫李华。", py: "Wǒ jiào Lǐ Huá.", ph: "Wor jyaow Lee Hwah.", eng: "My name is Li Hua.", isQ: false },
         { zh: "你是哪国人？", py: "Nǐ shì nǎ guó rén?", ph: "Nee shir nah gwor run?", eng: "Which country are you from?", isQ: true },
-        { zh: "我是澳大利亚人。", py: "Wǒ shì Àodàlìyà rén.", ph: "Wor shir Ow-dah-lee-yah run.", eng: "I am Australian.", isQ: false }
+        { zh: "我是新西兰人", py: "Wǒ shì xīnxīlán rén.", ph: "Wor shir sheen-shee-larn run.", eng: "I am New Zealander.", isQ: false }
     ],
     // 2. Ordering Coffee (2 Pairs)
     [
@@ -155,7 +172,7 @@ const conversations = [
         { zh: "你会说英语吗？", py: "Nǐ huì shuō Yīngyǔ ma?", ph: "Nee hway shwor Ying-yoo mah?", eng: "Do you speak English?", isQ: true },
         { zh: "会一点点。", py: "Huì yī diǎndiǎn.", ph: "Hway ee dyen-dyen.", eng: "A little bit.", isQ: false },
         { zh: "你说得很好！", py: "Nǐ shuō de hěn hǎo!", ph: "Nee shwor duh hun how!", eng: "You speak very well!", isQ: false },
-        { zh: "哪里哪里，谢谢。", py: "Nǎlǐ nǎlǐ, xièxiè.", ph: "Nah-lee nah-lee, hsyieh-hsyieh.", eng: "Not at all, thank you.", isQ: false }
+        { zh: "哪里哪里，谢谢。", py: "Nǎlǐ nǎlǐ, xièxiè.", ph: "Nah-lee nah-lee, shear-shear.", eng: "Not at all, thank you.", isQ: false }
     ],
     // 6. Ordering Dinner (3 Pairs)
     [
@@ -268,52 +285,95 @@ const conversations = [
     ]
 ];
 
+let currentConvoIndex = 0;
+let currentStep = 0; // Tracks which bubble is revealed
 
+const chatWindow = document.getElementById('chat-window');
+const appContainer = document.getElementById('app-container');
+const pageCounter = document.getElementById('page-counter');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
 
-    let currentIndex = 0;
-
-    const chatWindow = document.getElementById('chat-window');
-    const pageCounter = document.getElementById('page-counter');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-
-    function render() {
-        // Clear previous bubbles
-        chatWindow.innerHTML = ''; 
+function renderConversation() {
+    chatWindow.innerHTML = '';
+    const convo = conversations[currentConvoIndex];
+    
+    convo.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = `row ${item.isQ ? 'row-left' : 'row-right'}`;
+        row.id = `bubble-${index}`;
         
-        // Update Counter
-        pageCounter.innerText = `${currentIndex + 1} / ${conversations.length}`;
+        // Only the first bubble is visible by default
+        if (index === 0) {
+            row.classList.add('visible');
+            currentStep = 0;
+        }
+
+        row.innerHTML = `
+            <div class="bubble">
+                <span class="chinese">${item.zh}</span>
+                <span class="pinyin">${item.py}</span>
+                <div class="phonetic">${item.ph}</div>
+                <hr class="divider">
+                <span class="english">${item.eng}</span>
+            </div>
+        `;
+        chatWindow.appendChild(row);
+    });
+
+    pageCounter.innerText = `${currentConvoIndex + 1} / ${conversations.length}`;
+    prevBtn.disabled = currentConvoIndex === 0;
+    nextBtn.disabled = currentConvoIndex === conversations.length - 1;
+    
+    // Reset step counter for new conversation
+    currentStep = 0;
+}
+
+function handleTap() {
+    const convo = conversations[currentConvoIndex];
+    
+    if (currentStep < convo.length - 1) {
+        // Show the next bubble
+        currentStep++;
+        const nextBubble = document.getElementById(`bubble-${currentStep}`);
+        nextBubble.classList.add('visible');
         
-        // Loop through all lines in the current conversation set
-        conversations[currentIndex].forEach(line => {
-            const row = document.createElement('div');
-            row.className = `row ${line.isQ ? 'row-left' : 'row-right'}`;
-            
-            row.innerHTML = `
-                <div class="bubble">
-                    <span class="chinese">${line.zh}</span>
-                    <div class="pinyin">${line.py}</div>
-                    <div class="phonetic">[${line.ph}]</div>
-                    <hr class="divider">
-                    <div class="english">${line.eng}</div>
-                </div>
-            `;
-            chatWindow.appendChild(row);
-        });
-
-        // Scroll to the bottom of the chat automatically
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        // Manage button states
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === conversations.length - 1;
+        // Auto-scroll to bottom
+        chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+    } else {
+        // Conversation finished -> Flash Red
+        triggerRedFlash();
     }
+}
 
-    nextBtn.onclick = () => { if (currentIndex < conversations.length - 1) { currentIndex++; render(); } };
-    prevBtn.onclick = () => { if (currentIndex > 0) { currentIndex--; render(); } };
+function triggerRedFlash() {
+    appContainer.classList.add('flash-red');
+    setTimeout(() => {
+        appContainer.classList.remove('flash-red');
+    }, 300);
+}
 
-    // Start the app
-    render();
+// Event Listeners
+chatWindow.addEventListener('click', handleTap);
+
+prevBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent trigger tap
+    if (currentConvoIndex > 0) {
+        currentConvoIndex--;
+        renderConversation();
+    }
+});
+
+nextBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent trigger tap
+    if (currentConvoIndex < conversations.length - 1) {
+        currentConvoIndex++;
+        renderConversation();
+    }
+});
+
+// Initial Load
+renderConversation();
 </script>
 
 </body>
