@@ -333,18 +333,33 @@ function handleTap() {
     const convo = conversations[currentConvoIndex];
     
     if (currentStep < convo.length - 1) {
-        // Show the next bubble
         currentStep++;
         const nextBubble = document.getElementById(`bubble-${currentStep}`);
         nextBubble.classList.add('visible');
         
-        // Auto-scroll to bottom
-        chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+        // --- NEW SCROLL LOGIC ---
+        // Calculate heights
+        const windowHeight = chatWindow.clientHeight;
+        const bubbleHeight = nextBubble.offsetHeight;
+        
+        // If bubble is too tall to fit comfortably or pushes others out
+        // we scroll this specific bubble to the top.
+        if (bubbleHeight > windowHeight * 0.7) {
+            nextBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            // Otherwise, just ensure the bottom is visible
+            chatWindow.scrollTo({ 
+                top: chatWindow.scrollHeight, 
+                behavior: 'smooth' 
+            });
+        }
+        // -------------------------
+        
     } else {
-        // Conversation finished -> Flash Red
         triggerRedFlash();
     }
 }
+
 
 function triggerRedFlash() {
     appContainer.classList.add('flash-red');
