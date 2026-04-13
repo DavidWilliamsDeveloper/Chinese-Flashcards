@@ -157,8 +157,8 @@ const conversations = [
         { zh: "二十块。", py: "Èrshí kuài.", ph: "Arr-shir kwhy.", eng: "Twenty yuan.", isQ: false },
         { zh: "太贵了！可以便宜点吗？", py: "Tài guì le! Kěyǐ piányí diǎn ma?", ph: "Tie gway luh! Kuh-yee pyen-yee dyen mah?", eng: "Too expensive! Can it be cheaper?", isQ: true },
         { zh: "十五块怎么样？", py: "Shíwǔ kuài zěnmeyàng?", ph: "Shir-woo kwhy dzun-muh-yahng?", eng: "How about fifteen yuan?", isQ: false },
-        { zh: "好，我要这个。", py: "Hǎo, wǒ yào zhège.", ph: "How, wor yaow juh-guh.", eng: "Okay, I want this one.", isQ: false },
-        { zh: "给你钱。", py: "Gěi nǐ qián.", ph: "Gay nee chyen.", eng: "Here is the money.", isQ: false }
+        { zh: "好，我要这个。", py: "Hǎo, wǒ yào zhège.", ph: "How, wor yaow juh-guh.", eng: "Okay, I want this one.", isQ: true },
+        { zh: "给你钱。", py: "Gěi nǐ qián.", ph: "Gay nee chyen.", eng: "Here is the money.", isQ: true }
     ],
     // 4. Asking for Directions (2 Pairs)
     [
@@ -339,28 +339,31 @@ function handleTap() {
         currentStep++;
         const nextBubble = document.getElementById(`bubble-${currentStep}`);
         
-        // 1. Show the bubble
+        // 1. Reveal the bubble
         nextBubble.classList.add('visible');
         
-        // 2. Short delay to allow the CSS transition/layout to calculate
+        // 2. Calculate positioning after the DOM updates
         setTimeout(() => {
-            const windowHeight = chatWindow.clientHeight;
-            const bubbleHeight = nextBubble.offsetHeight;
+            const containerHeight = chatWindow.clientHeight;
+            const scrollPos = chatWindow.scrollTop;
+            
+            // Get the distance from the top of the chat-window to the bottom of the new bubble
+            const bubbleBottom = nextBubble.offsetTop + nextBubble.offsetHeight;
+            
+            // Check if the bottom of the bubble is below the current visible fold
+            const isOffScreen = bubbleBottom > (scrollPos + containerHeight);
 
-            // If the bubble is taller than 70% of the screen, or 
-            // if adding it would push it off the bottom:
-            if (bubbleHeight > windowHeight * 0.7) {
-                // Align the TOP of this bubble to the TOP of the window
-                nextBubble.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                // Otherwise, standard scroll to bottom
+            if (isOffScreen) {
+                // Scroll so the top of the bubble is 10px from the top edge
                 chatWindow.scrollTo({ 
-                    top: chatWindow.scrollHeight, 
+                    top: nextBubble.offsetTop - 10, 
                     behavior: 'smooth' 
                 });
             }
-        }, 50); // 50ms delay ensures the 'visible' class is fully applied
-        
+            // If it's NOT off-screen, we do nothing (no scrolling), 
+            // satisfying the "If all bubbles still fit" requirement.
+            
+        }, 60); 
     } else {
         triggerRedFlash();
     }
