@@ -13,29 +13,33 @@
             --error-red: rgba(255, 255, 255, 0.4);
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #6B96D6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            /* Prevent text selection while tapping rapidly */
-            user-select: none; 
-        }
+	body {
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		background-color: #6B96D6;
+		margin: 0;
+		/* Use padding-top instead of centering to prevent bottom cutoff */
+		padding: 10px; 
+		display: flex;
+		justify-content: center;
+		user-select: none; 
+		height: 100vh; /* Fill the screen */
+		box-sizing: border-box;
+	}
 
-        #app-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg-color);
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            overflow: hidden;
-            transition: background-color 0.3s ease;
-        }
+	#app-container {
+		width: 100%;
+		max-width: 500px;
+		/* dvh (Dynamic Viewport Height) adjusts as browser bars hide/show */
+		height: 95dvh; 
+		/* Fallback for older browsers */
+		height: 92vh; 
+		background: var(--bg-color);
+		display: flex;
+		flex-direction: column;
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+		overflow: hidden;
+	}
 
         /* The Red Flash Animation */
         #app-container.flash-red {
@@ -43,7 +47,7 @@
         }
 
         header {
-            background: var(--accent);
+            background: #334DDE;
             color: white;
             padding: 15px;
             text-align: center;
@@ -97,7 +101,7 @@
             padding: 10px 22px;
             border: none;
             border-radius: 25px;
-            background: var(--accent);
+            background: #334DDE;
             color: white;
             cursor: pointer;
             font-weight: 600;
