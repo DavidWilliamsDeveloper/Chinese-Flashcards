@@ -9,7 +9,7 @@
         :root {
             --bg-color: #e5ddd5;
             --left-bubble: #ffffff;
-            --right-bubble: #dcf8c6;
+            --right-bubble: #FEDF15;
             --accent: #075e54;
             --error-red: rgba(255, 0, 0, 0.3);
         }
@@ -54,7 +54,7 @@
         #chat-window {
             flex: 1;
             overflow-y: auto;
-			background: #BAC8FD;
+			background: #A3D6F4;
             /* Added padding around the window for a "floating" feel */
             padding: 25px 15px; 
             display: flex;
@@ -67,16 +67,32 @@
             background: #0C2A97;
             border-top: 1px solid #ddd;
             display: flex;
-            justify-content: space-between;
+            flex-direction:column;
+            justify-content: center;
             align-items: center;
             /* Extra bottom padding to sit above browser nav bars */
             padding: 15px 20px 45px 20px; 
             z-index: 10;
+            gap: 25px;
+        }
+        
+        .footer-nav {
+            display: flex;
+            align-items: center;    /* Keeps buttons and counter aligned horizontally */
+            gap: 44px;              /* Adds space between buttons and counter */
+        }
+
+        .hello-text {
+            width: 100%;            /* Ensures it stays on its own line */
+            text-align: center;     /* Centers the text within its line */
+            padding-top: 20;
+            color: White;
         }
 
         button {
-            background: var(--accent);
-            color: white;
+            background: #BAC8FD;
+            width: 120px;
+            color: #0C2A97;
             border: none;
             padding: 10px 20px;
             border-radius: 20px;
@@ -88,7 +104,7 @@
         button:active { opacity: 0.7; }
         button:disabled { background: #ccc; cursor: not-allowed; }
 
-        .counter { font-size: 0.9rem; color: #666; font-weight: bold; }
+        .counter { font-size: 0.9rem; color: #FFFFFF; font-weight: bold; white-space: nowrap;}
 
         /* Bubble Styles */
         .row { display: flex; width: 100%; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
@@ -108,16 +124,21 @@
 <body>
 
 <div id="app-container">
-    <header>Language Practice</header>
+    <header>Conversations in Chinese</header>
     
     <div id="chat-window">
         <!-- Bubbles injected here -->
     </div>
 
     <footer>
-        <button id="prev-btn">Previous</button>
-        <div class="counter" id="page-counter">1 / 1</div>
-        <button id="next-btn">Next</button>
+        <div class="footer-nav">
+        	<button id="prev-btn">Previous</button>
+        	<div class="counter" id="page-counter">1 / 1</div>
+            <button id="next-btn">Next</button>
+    	</div>        
+       
+        <div class="hello-text">Tap to reveal next speech bubble</div>
+        
     </footer>
 </div>
 
