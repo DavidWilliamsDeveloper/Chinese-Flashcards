@@ -2,46 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Conversation Practice</title>
+    
+    <!-- PWA / Full Screen Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         :root {
             --bg-color: #e5ddd5;
             --left-bubble: #ffffff;
             --right-bubble: #dcf8c6;
             --accent: #075e54;
-            --error-red: rgba(255, 255, 255, 0.4);
+            --error-red: rgba(255, 0, 0, 0.3);
         }
 
-	body {
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		background-color: #6B96D6;
-		margin: 0;
-		/* Use padding-top instead of centering to prevent bottom cutoff */
-		padding: 10px; 
-		display: flex;
-		justify-content: center;
-		user-select: none; 
-		height: 100vh; /* Fill the screen */
-		box-sizing: border-box;
-	}
+        /* Prevent the whole page from bouncing/scrolling */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #6B96D6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none; /* Disables default browser gestures */
+            user-select: none;
+        }
 
-	#app-container {
-		width: 100%;
-		max-width: 500px;
-		/* dvh (Dynamic Viewport Height) adjusts as browser bars hide/show */
-		height: 95dvh; 
-		/* Fallback for older browsers */
-		height: 92vh; 
-		background: var(--bg-color);
-		display: flex;
-		flex-direction: column;
-		border-radius: 12px;
-		box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-		overflow: hidden;
-	}
+        #app-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
 
-        /* The Red Flash Animation */
         #app-container.flash-red {
             background-color: var(--error-red) !important;
         }
@@ -52,21 +56,35 @@
             padding: 15px;
             text-align: center;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #chat-window {
-            flex: 1;
+            /* FIXED HEIGHT SETTING */
+            height: 75vh; 
 			background: #EBF1FA;
             overflow-y: auto;
             padding: 20px;
+            padding-bottom: 120px; /* Large bottom gap */
             display: flex;
             flex-direction: column;
             gap: 12px;
-            cursor: pointer; /* Suggests the area is clickable */
+            cursor: pointer;
+            touch-action: pan-y; /* Allows vertical scroll, but we handle horizontal */
+            -webkit-overflow-scrolling: touch;
         }
 
-        .row { display: flex; width: 100%; margin-bottom: 5px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .row { 
+            display: flex; 
+            width: 100%; 
+            margin-bottom: 5px; 
+            opacity: 0; 
+            transform: translateY(10px); 
+            transition: all 0.3s ease; 
+        }
+        
         .row.visible { opacity: 1; transform: translateY(0); }
         .row-left { justify-content: flex-start; }
         .row-right { justify-content: flex-end; }
@@ -76,68 +94,39 @@
             padding: 12px 16px;
             border-radius: 15px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            position: relative;
         }
 
         .row-left .bubble { background: var(--left-bubble); border-top-left-radius: 2px; }
         .row-right .bubble { background: var(--right-bubble); border-top-right-radius: 2px; }
 
-        .chinese { font-size: 1.45rem; font-weight: 600; color: #000; display: block; margin-bottom: 2px; }
-        .pinyin { font-size: 1.45rem; color: #444; font-style: italic; }
-        .phonetic { font-size: 1.45rem; color: #777; margin-bottom: 8px; }
+        .chinese { font-size: 1.45rem; font-weight: 600; color: #000; display: block; }
+        .pinyin { font-size: 1.2rem; color: #444; font-style: italic; }
+        .phonetic { font-size: 1.1rem; color: #777; margin-bottom: 8px; }
         .divider { border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 8px 0; }
-        .english { font-size: 1.45rem; color: #222; }
+        .english { font-size: 1.3rem; color: #222; }
 
-        footer {
-            background: #f0f0f0;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #ccc;
-        }
-
-        button {
-            padding: 10px 22px;
-            border: none;
-            border-radius: 25px;
-            background: #334DDE;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            z-index: 10;
-        }
-
-        button:active { transform: scale(0.95); }
-        button:disabled { background: #bbb; cursor: not-allowed; }
-
-        .counter { font-size: 0.85rem; color: #666; font-weight: bold; }
-        
-        .tap-hint {
+        .hint {
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #777;
-            margin-top: 10px;
-            font-style: italic;
+            padding: 10px;
+            background: rgba(255,255,255,0.5);
         }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <header id="header-text">Language Practice</header>
+    <header>
+        <span id="header-text">Language Practice</span>
+        <span id="page-counter">1 / 1</span>
+    </header>
     
     <div id="chat-window">
-        <!-- Bubbles will be injected here -->
+        <!-- Bubbles injected here -->
     </div>
 
-    <div class="tap-hint">Tap screen to reveal next bubble</div>
-
-    <footer>
-        <button id="prev-btn">Previous</button>
-        <div class="counter" id="page-counter">1 / 1</div>
-        <button id="next-btn">Next</button>
-    </footer>
+    <div class="hint">Tap to reveal • Swipe left/right for other topics</div>
 </div>
 
 <script>
@@ -291,13 +280,13 @@ const conversations = [
 ];
 
 let currentConvoIndex = 0;
-let currentStep = 0; // Tracks which bubble is revealed
+let currentStep = 0;
+let touchstartX = 0;
+let touchendX = 0;
 
 const chatWindow = document.getElementById('chat-window');
 const appContainer = document.getElementById('app-container');
 const pageCounter = document.getElementById('page-counter');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
 
 function renderConversation() {
     chatWindow.innerHTML = '';
@@ -307,11 +296,7 @@ function renderConversation() {
         const row = document.createElement('div');
         row.className = `row ${item.isQ ? 'row-left' : 'row-right'}`;
         row.id = `bubble-${index}`;
-        
-        if (index === 0) {
-            row.classList.add('visible');
-            currentStep = 0;
-        }
+        if (index === 0) row.classList.add('visible');
 
         row.innerHTML = `
             <div class="bubble">
@@ -326,81 +311,73 @@ function renderConversation() {
     });
 
     pageCounter.innerText = `${currentConvoIndex + 1} / ${conversations.length}`;
-    prevBtn.disabled = currentConvoIndex === 0;
-    nextBtn.disabled = currentConvoIndex === conversations.length - 1;
-    
+    chatWindow.scrollTop = 0;
     currentStep = 0;
-
-    // --- ADDED RESET SCROLL ---
-    // This forces the chat window back to the top for the new conversation
-    chatWindow.scrollTop = 0; 
 }
-
 
 function handleTap() {
     const convo = conversations[currentConvoIndex];
-    
     if (currentStep < convo.length - 1) {
         currentStep++;
         const nextBubble = document.getElementById(`bubble-${currentStep}`);
-        
-        // 1. Reveal the bubble
         nextBubble.classList.add('visible');
         
-        // 2. Calculate positioning after the DOM updates
         setTimeout(() => {
             const containerHeight = chatWindow.clientHeight;
             const scrollPos = chatWindow.scrollTop;
-            
-            // Get the distance from the top of the chat-window to the bottom of the new bubble
             const bubbleBottom = nextBubble.offsetTop + nextBubble.offsetHeight;
             
-            // Check if the bottom of the bubble is below the current visible fold
-            const isOffScreen = bubbleBottom > (scrollPos + containerHeight);
-
-            if (isOffScreen) {
-                // Scroll so the top of the bubble is 10px from the top edge
+            // Logic: If the new bubble's bottom edge would be out of sight
+            if (bubbleBottom > (scrollPos + containerHeight)) {
                 chatWindow.scrollTo({ 
                     top: nextBubble.offsetTop - 10, 
                     behavior: 'smooth' 
                 });
             }
-            // If it's NOT off-screen, we do nothing (no scrolling), 
-            // satisfying the "If all bubbles still fit" requirement.
-            
-        }, 60); 
+        }, 60);
     } else {
         triggerRedFlash();
     }
 }
 
-
+function handleGesture() {
+    const threshold = 60;
+    // Swipe Left -> Go to Next Conversation
+    if (touchstartX - touchendX > threshold) {
+        if (currentConvoIndex < conversations.length - 1) {
+            currentConvoIndex++;
+            renderConversation();
+        } else {
+            triggerRedFlash();
+        }
+    }
+    // Swipe Right -> Go to Previous Conversation
+    if (touchendX - touchstartX > threshold) {
+        if (currentConvoIndex > 0) {
+            currentConvoIndex--;
+            renderConversation();
+        } else {
+            triggerRedFlash();
+        }
+    }
+}
 
 function triggerRedFlash() {
     appContainer.classList.add('flash-red');
-    setTimeout(() => {
-        appContainer.classList.remove('flash-red');
-    }, 300);
+    setTimeout(() => appContainer.classList.remove('flash-red'), 300);
 }
 
 // Event Listeners
 chatWindow.addEventListener('click', handleTap);
 
-prevBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent trigger tap
-    if (currentConvoIndex > 0) {
-        currentConvoIndex--;
-        renderConversation();
-    }
-});
+appContainer.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+}, false);
 
-nextBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent trigger tap
-    if (currentConvoIndex < conversations.length - 1) {
-        currentConvoIndex++;
-        renderConversation();
-    }
-});
+appContainer.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    handleGesture();
+}, false);
 
 // Initial Load
 renderConversation();
